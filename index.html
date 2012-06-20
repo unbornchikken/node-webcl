@@ -1,0 +1,226 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Node-webcl</title>
+  <meta name="description" content="">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Node-webcl</h1>
+    </header>
+    <div id="container">
+      <p class="tagline"></p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/Motorola-Mobility/node-webcl/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/Motorola-Mobility/node-webcl/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/Motorola-Mobility/node-webcl" class="code">View Node-webcl on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <h1>Introduction</h1>
+
+<p>This is an implementation of Khronos <a href="https://cvs.khronos.org/svn/repos/registry/trunk/public/webcl/spec/latest/index.html" title="Khronos WebCL working draft">WebCL</a> specification using NodeJS.
+This implementation solely relies on <a href="http://www.khronos.org/registry/cl/" title="Khronos OpenCL specification">OpenCL</a> 1.1 C headers. </p>
+
+<h2>Dislaimer</h2>
+
+<p>While we are close to the WebCL specification, some features in this code may or may not be available in the final specification. As such, this implementation should be considered for </p>
+
+<ul>
+<li>experimental development of WebCL/WebGL content,</li>
+<li>experimenting with new constructs that may not be available in browsers, </li>
+<li>coupled with Node.JS awesome capabilities, this software opens the door to non-browser applications (e.g. fast server-side image processing).</li>
+</ul><p>This implementation is not secure nor robust, we will update as the standard progresses in these areas. So beware that hacking your GPU may crash your computer; don't blame us!</p>
+
+<h2>License</h2>
+
+<p>node-webcl is distributed under BSD license</p>
+
+<p>Copyright (c) 2011-2012, Motorola Mobility, Inc.
+All rights reserved.</p>
+
+<p>See LICENSES in this distribution for all licenses used in samples from other companies.</p>
+
+<h2>Dependencies</h2>
+
+<ul>
+<li><p><a href="https://github.com/mikeseven/node-webgl" title="node-webgl">node-webgl</a>. This module is used for samples using WebGL interoperability with WebCL.
+In turns, <a href="https://github.com/mikeseven/node-webgl" title="node-webgl">node-webgl</a> relies on <a href="https://github.com/mikeseven/node-glfw" title="node-glfw">node-glfw</a> that relies on <a href="http://www.glfw.org/" title="GLFW">GLFW</a>, <a href="http://glew.sourceforge.net/" title="GLEW: The OpenGL Extension Wrangler Library">GLEW</a>, <a title="AntTweakBar">AntTweakBar</a>. See node-webgl and node-glfw for instructions on how to install these modules.</p></li>
+<li><p>OpenCL 1.1 must be installed on your machine. Typically, this means your machine has a not too old graphic card (maybe not more than 3 years old) and its latest graphic drivers installed.</p></li>
+</ul><p>On Mac, we recommend using OSX 10.7 "Lion" since OSX 10.6 "Snow Leopard" only supports OpenCL 1.0 and is buggy.</p>
+
+<p>On Windows, use Windows 7. Note that if your machine is 64-bit, you should use node.js 64-bit distribution, not the 32-bit default to avoid mismatch between node libraries and these native dependencies when node-gyp build the modules.</p>
+
+<p>On Linux, make sure you use the latest AMD or NVidia drivers. This module has been tested with Ubuntu 10.10, 11.04 and 11.10 64-bit.</p>
+
+<p>Pre-built binaries are available in submodule deps. Don't forget to do:</p>
+
+<pre><code>git submodule init
+git submodule udpate
+</code></pre>
+
+<p>if you need these binaries. </p>
+
+<h2>Installation</h2>
+
+<p>Since OpenCL is a compute specification, rendering is not the main purpose but if you want to use graphic acceleration, you should first install node-glfw and then node-webgl and make sure some of node-webgl samples are working. See node-webgl for instructions.</p>
+
+<p>Note that installing the usual way: </p>
+
+<pre><code>npm install node-webcl
+</code></pre>
+
+<p>will also install node-webgl and node-glfw.</p>
+
+<p>If you want to use the latest code, simply do</p>
+
+<pre><code>node-gyp rebuild
+</code></pre>
+
+<p>in node-webcl, node-webgl, and node-glfw.</p>
+
+<h1>A crash course on WebCL</h1>
+
+<p>WebCL is a JavaScript representation of OpenCL 1.1. It is not a straight mapping of OpenCL C methods but rather an object-oriented representation of OpenCL object model. Knowledge of OpenCL is OpenCL is therefore mandatory to be able to develop WebCL programs. See the Books section and/or jump directly into Specifications references at the end of this page.</p>
+
+<p>There are few steps in creating a WebCL program:</p>
+
+<ol>
+<li>Init WebCL
+
+<ol>
+<li>find a suitable platform/device (<code>cl.getPlatform()</code>, <code>cl.getDevices()</code>)</li>
+<li>create a context (<code>context = cl.createContext()</code>)</li>
+<li>create a command queue (<code>queue = context.createCommandQueue()</code>)</li>
+<li>compile a program (<code>program = context.createProgram()</code>, <code>program.build()</code>)</li>
+<li>set up a kernel and its arguments (<code>kernel = program.createKernel()</code>, <code>kernel.setArg()</code>)</li>
+<li>set up commands (<code>queue.enqueueXXX()</code>)</li>
+</ol>
+</li>
+<li>Run computation
+
+<ol>
+<li>set up kernel arguments (<code>kernel.setArg()</code>)</li>
+<li>set up commands (<code>queue.enqueueXXX()</code>)</li>
+<li>launch the computation (<code>queue.enqueueTask()</code> or <code>queue.enqueueNDRange()</code>)</li>
+</ol>
+</li>
+</ol><p>When used with WebGL, WebGL context must be created first because WebCL context is created with sharing the WebGL context. Remember that WebCL allows computations on WebGL buffers. WebCL doesn't do any rendering. By using WebCL and WebGL together, data remains in the device and this avoids expensive data transfer to/from CPU memory.</p>
+
+<p>So the sequence becomes:</p>
+
+<ol>
+<li>init WebGL
+
+<ol>
+<li>init buffers</li>
+<li>init shaders</li>
+<li>init textures</li>
+</ol>
+</li>
+<li>init WebCL (<code>context = cl.createContext({ sharedObject: gl })</code>)</li>
+<li>init shared objects (e.g. textures/array/pixel/render buffers)</li>
+<li>launch WebGL rendering loop
+
+<ul>
+<li>... execute GL commands</li>
+<li>acquire GL objects (<code>queue.enqueueAcquireGLObjects()</code>)</li>
+<li>launch CL computation (<code>queue.enqueueNDRange()</code>)</li>
+<li>release GL objects (<code>queue.enqueueReleaseGLObjects()</code>)</li>
+<li>... execute GL commands</li>
+</ul>
+</li>
+</ol><h1>References</h1>
+
+<p>Specifications</p>
+
+<ul>
+<li>
+<em>Khronos OpenCL specification</em>, <a href="http://www.khronos.org/registry/cl/" title="Khronos OpenCL specification">http://www.khronos.org/registry/cl/</a>
+</li>
+<li>
+<em>Khronos WebCL working draft</em>, <a href="https://cvs.khronos.org/svn/repos/registry/trunk/public/webcl/spec/latest/index.html" title="Khronos WebCL working draft">https://cvs.khronos.org/svn/repos/registry/trunk/public/webcl/spec/latest/index.html</a>
+</li>
+<li>
+<em>Khronos WebGL specification</em>, <a href="http://www.khronos.org/webgl/" title="Khronos WebGL specification">http://www.khronos.org/webgl/</a>
+</li>
+</ul><p>Books</p>
+
+<ul>
+<li>
+<em>Heterogeneous Computing with OpenCL</em>, Benedict Gaster, Lee Howes, David R. Kaeli and Perhaad Mistry, Morgan Kaufmann, August 2011</li>
+<li>
+<em>OpenCL Programming Guide by Aaftab Munshi</em>, Benedict Gaster, Timothy G. Mattson and James Fung, Addison-Wesley Professional, July 2011</li>
+<li>
+<em>OpenCL in Action: How to Accelerate Graphics and Computations</em>, Matthew Scarpino, Manning Publications, November 2011</li>
+<li>
+<em>The OpenCL Programming Book</em>, Ryoji Tsuchiyama, Takashi Nakamura, Takuro Iizuka and Akihiro Asahara, Fixstars Corporation, April 2010, <a href="http://www.fixstars.com/en/opencl/book/OpenCLProgrammingBook/contents.html">http://www.fixstars.com/en/opencl/book/OpenCLProgrammingBook/contents.html</a>
+</li>
+<li>
+<em>OpenCL Programming Guide for Mac OS X</em>, <a href="http://developer.apple.com/library/mac/documentation/Performance/Conceptual/OpenCL_MacProgGuide/OpenCL_MacProgGuide.pdf">http://developer.apple.com/library/mac/documentation/Performance/Conceptual/OpenCL_MacProgGuide/OpenCL_MacProgGuide.pdf</a>
+</li>
+</ul><p>OpenCL SDKs (use latest!)</p>
+
+<ul>
+<li>
+<strong>NVidia graphic cards</strong>: <em>NVidia CUDA/OpenCL SDK</em>, <a href="http://developer.nvidia.com/opencl">http://developer.nvidia.com/opencl</a>
+</li>
+<li>
+<strong>AMD/ATI graphics cards</strong>: <em>AMD Accelerated Parallel Processing SDK</em>, <a href="http://developer.amd.com/zones/openclzone/Pages/default.aspx">http://developer.amd.com/zones/openclzone/Pages/default.aspx</a>
+</li>
+<li>
+<strong>Intel CPUs</strong>: <em>Intel OpenCL SDK</em>, <a href="http://software.intel.com/en-us/articles/vcsource-tools-opencl-sdk/">http://software.intel.com/en-us/articles/vcsource-tools-opencl-sdk/</a>
+</li>
+</ul>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/Motorola-Mobility" class="avatar"><img src="https://secure.gravatar.com/avatar/3df6f187e1de60b45ca069b42133bdf8?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png" width="48" height="48"/></a> <a href="https://github.com/Motorola-Mobility">Motorola-Mobility</a> maintains <a href="https://github.com/Motorola-Mobility/node-webcl">Node-webcl</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="http://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/Motorola-Mobility/node-webcl/tarball/master" class="tar">tar</a><a href="https://github.com/Motorola-Mobility/node-webcl/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-32803813-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+</body>
+</html>
