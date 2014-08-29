@@ -3,3 +3,5 @@ Debug
 .settings
 build
 conformance
+*.log
+node_modules
