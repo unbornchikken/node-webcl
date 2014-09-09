@@ -34,7 +34,9 @@
 #              'OTHER_LDFLAGS': ['-stdlib=libc++'],
               'MACOSX_DEPLOYMENT_TARGET': '10.7'
           },
-          'libraries': ['-framework OpenGL', '-framework OpenCL']
+          'libraries': ['-framework OpenGL', '-framework OpenCL'],
+          'include_dirs': ['/usr/local/include'],
+          'library_dirs': ['/usr/local/lib'],
         }],
         ['OS=="linux"', {'libraries': ['-lGL', '-lOpenCL']}],
         ['OS=="win"', {
