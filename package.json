@@ -27,16 +27,12 @@
   "directories": {
     "src": "src",
     "lib": "lib",
-    "docs": "docs",
-    "examples": "examples",
     "test": "test"
   },
   "scripts": {
     "install": "node-gyp rebuild"
   },
   "dependencies": {
-    "node-webgl": ">=0.4.2",
-    "node-image": ">=0.7.1",
     "nan": ">=1.4.1"
   },
   "devDependencies": {
