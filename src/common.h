@@ -141,6 +141,8 @@ void registerCLObj(WebCLObject* obj);
 void unregisterCLObj(WebCLObject* obj);
 void AtExit(void* arg);
 
+#undef None
+
 namespace CLObjType {
 enum CLObjType {
   None=0,
